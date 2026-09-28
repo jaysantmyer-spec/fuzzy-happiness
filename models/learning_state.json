@@ -1,0 +1,125 @@
+{
+  "weights": {
+    "logreg": 0.34024329873900105,
+    "rf": 0.3003521369882554,
+    "hgb": 0.3594045642727436
+  },
+  "temperature": 1.3641406722547353,
+  "hardness_alpha": 0.5,
+  "half_life_years": 5.0,
+  "learners": [
+    "logreg",
+    "rf",
+    "hgb"
+  ],
+  "history": [
+    {
+      "at": "2026-09-23T12:58:56",
+      "action": "update_skipped",
+      "reason": "only 0 graded predictions (need 150)"
+    },
+    {
+      "at": "2026-09-23T12:59:11",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-125910"
+    },
+    {
+      "at": "2026-09-23T13:00:31",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-130031"
+    },
+    {
+      "at": "2026-09-23T14:04:44",
+      "action": "update_skipped",
+      "reason": "only 0 graded predictions (need 150)"
+    },
+    {
+      "at": "2026-09-23T14:04:59",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-140459"
+    },
+    {
+      "at": "2026-09-23T14:19:25",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-141925"
+    },
+    {
+      "at": "2026-09-23T14:40:34",
+      "action": "reweighted",
+      "old_weights": {},
+      "new_weights": {
+        "logreg": 0.3333417777112299,
+        "rf": 0.2860267635553337,
+        "hgb": 0.3806314587334364
+      },
+      "temperature": 1.3674193101487084,
+      "n": 600
+    },
+    {
+      "at": "2026-09-23T14:40:49",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-144049"
+    },
+    {
+      "at": "2026-09-23T15:26:46",
+      "action": "reweighted",
+      "old_weights": {
+        "logreg": 0.3333417777112299,
+        "rf": 0.2860267635553337,
+        "hgb": 0.3806314587334364
+      },
+      "new_weights": {
+        "logreg": 0.34024329873900105,
+        "rf": 0.3003521369882554,
+        "hgb": 0.3594045642727436
+      },
+      "temperature": 1.3641406722547353,
+      "n": 600
+    },
+    {
+      "at": "2026-09-23T15:27:00",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-152700"
+    },
+    {
+      "at": "2026-09-23T15:31:58",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-153158"
+    },
+    {
+      "at": "2026-09-23T15:47:22",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260923-154722"
+    },
+    {
+      "at": "2026-09-27T00:23:57",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260927-002357"
+    },
+    {
+      "at": "2026-09-27T00:25:30",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260927-002529"
+    }
+  ]
+}
