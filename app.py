@@ -218,7 +218,12 @@ with st.sidebar:
     else:
         st.info("No trained model yet.")
     st.divider()
-    odds_key = st.text_input("The Odds API key (optional)", value=os.getenv("ODDS_API_KEY", ""), type="password",
+    _default_key = os.getenv("ODDS_API_KEY", "")
+    try:
+        _default_key = _default_key or st.secrets.get("ODDS_API_KEY", "")
+    except Exception:
+        pass
+    odds_key = st.text_input("The Odds API key (optional)", value=_default_key, type="password",
                              help="Adds live betting lines so the model can be compared with the market.")
     auto_log = st.checkbox("Save card predictions to the ledger automatically", value=True,
                            help="The ledger is what the model grades itself against after each event.")
