@@ -32,7 +32,7 @@ from urllib3.util.retry import Retry
 from . import config, store
 
 log = logging.getLogger(__name__)
-BASE = "http://ufcstats.com"
+BASE = "http://ufcstats.com"  # fighter/fight URLs in the data use http; requests are upgraded to https
 UA = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
@@ -59,11 +59,50 @@ def _session() -> requests.Session:
     return s
 
 
+def _browser_session():
+    """A session that impersonates a real Chrome at the TLS level (curl_cffi). UFCStats sits behind a
+    'checking your browser' wall that blocks plain Python requests from data-centre addresses; this
+    usually gets through. Returns None if curl_cffi isn't installed."""
+    s = getattr(_local, "cffi", None)
+    if s is None:
+        try:
+            from curl_cffi import requests as cffi_requests
+            s = cffi_requests.Session(impersonate="chrome")
+        except Exception:
+            s = False
+        _local.cffi = s
+    return s or None
+
+
+def _looks_blocked(text: str) -> bool:
+    head = text[:3000].lower()
+    return ("checking your browser" in head or "requires javascript" in head or "cf-chl" in head
+            or "just a moment" in head)
+
+
+def fetch_html(url: str, timeout: int = 20) -> str:
+    url = url.replace("http://ufcstats.com", "https://ufcstats.com", 1)
+    headers = {"User-Agent": random.choice(UA), "Accept-Language": "en-US,en;q=0.9",
+               "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
+    bs = _browser_session()
+    if bs is not None:
+        try:
+            r = bs.get(url, timeout=timeout, headers={"Accept-Language": "en-US,en;q=0.9"})
+            if r.status_code == 200 and not _looks_blocked(r.text):
+                return r.text
+        except Exception as e:  # fall through to plain requests
+            log.warning("browser-impersonated fetch failed for %s: %s", url, e)
+    r = _session().get(url, headers=headers, timeout=timeout)
+    r.raise_for_status()
+    if _looks_blocked(r.text):
+        raise RuntimeError("UFCStats returned a browser-verification page (bot wall). "
+                           "Install curl_cffi (pip install curl_cffi) or run the update from a home connection.")
+    return r.text
+
+
 def get_soup(url: str, timeout: int = 20, polite: float = 0.15) -> BeautifulSoup:
     time.sleep(random.uniform(0, polite))
-    r = _session().get(url, headers={"User-Agent": random.choice(UA)}, timeout=timeout)
-    r.raise_for_status()
-    return BeautifulSoup(r.text, "html.parser")
+    return BeautifulSoup(fetch_html(url, timeout), "html.parser")
 
 
 def parallel_map(fn, items: list, workers: int, progress: Progress = None, label: str = "") -> dict:
@@ -136,9 +175,8 @@ class ScrapeError(RuntimeError):
 def scrape_event_list(kind: str = "completed") -> pd.DataFrame:
     url = f"{BASE}/statistics/events/{kind}?page=all"
     time.sleep(random.uniform(0, 0.15))
-    r = _session().get(url, headers={"User-Agent": random.choice(UA)}, timeout=30)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
+    html_text = fetch_html(url, timeout=30)
+    soup = BeautifulSoup(html_text, "html.parser")
     rows = []
     # Find events by their links rather than exact table classes, so small site changes don't break it.
     for a in soup.select("a[href*='event-details']"):
@@ -163,12 +201,12 @@ def scrape_event_list(kind: str = "completed") -> pd.DataFrame:
         # Save what the site sent so the problem can be diagnosed, then fail loudly.
         config.ensure_dirs()
         dbg = config.DATA / f"debug_events_{kind}.html"
-        dbg.write_text(r.text, encoding="utf-8")
+        dbg.write_text(html_text, encoding="utf-8")
         title = soup.title.get_text(strip=True) if soup.title else "(no title)"
         snippet = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))[:300]
         raise ScrapeError(
-            f"UFCStats returned a page with no events. HTTP {r.status_code}, final URL {r.url}, "
-            f"page title '{title}'. Start of page text: {snippet!r}. Raw page saved to {dbg}.")
+            f"UFCStats returned a page with no events ({url}), page title '{title}'. "
+            f"Start of page text: {snippet!r}. Raw page saved to {dbg}.")
     df = pd.DataFrame(rows, columns=["event_url", "event_name", "event_date", "event_location"]).drop_duplicates("event_url")
     today = pd.Timestamp.today().normalize()
     if kind == "completed":

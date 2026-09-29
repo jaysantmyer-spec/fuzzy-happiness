@@ -12,3 +12,4 @@ certifi
 xgboost>=2.0; sys_platform == "linux"
 lightgbm>=4.0; sys_platform == "linux"
 catboost>=1.2; sys_platform == "linux"
+curl_cffi>=0.7          # browser-impersonating HTTP, gets past the UFCStats bot wall
