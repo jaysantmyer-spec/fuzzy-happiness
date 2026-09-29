@@ -11,3 +11,4 @@ certifi
 # Boosted learners: work out of the box on Streamlit Cloud (Linux). On a Mac see requirements-optional.txt.
 xgboost>=2.0; sys_platform == "linux"
 lightgbm>=4.0; sys_platform == "linux"
+catboost>=1.2; sys_platform == "linux"

@@ -2,3 +2,4 @@
 # The app works without them; install with:  pip install -r requirements-optional.txt
 xgboost>=2.0
 lightgbm>=4.0
+catboost>=1.2

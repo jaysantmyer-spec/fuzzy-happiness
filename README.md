@@ -39,8 +39,9 @@ writes a single self-contained HTML page (picks, results, pricing, props, track 
 python -m ufc_predictor report --track 10 --out card.html
 ```
 
-**XGBoost**: install `requirements-optional.txt` (on a Mac first `brew install libomp`) and the *full* preset
-blends XGBoost into the ensemble automatically; nothing else changes.
+**XGBoost, LightGBM, CatBoost**: install `requirements-optional.txt` (XGBoost and LightGBM need `brew install libomp`
+on an Intel Mac; CatBoost has no such requirement) and the *balanced* and *full* presets blend whichever are
+installed into the ensemble automatically. On Streamlit Cloud all three install from `requirements.txt`.
 
 ## What each tab does
 

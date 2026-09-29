@@ -41,9 +41,10 @@ def _importable(name: str) -> bool:
 
 HAS_XGB = _importable("xgboost")
 HAS_LGBM = _importable("lightgbm")
+HAS_CAT = _importable("catboost")
 
 LEARNER_NAMES = {"logreg": "Logistic regression", "rf": "Random forest",
-                 "hgb": "Hist. gradient boosting", "xgb": "XGBoost", "lgbm": "LightGBM"}
+                 "hgb": "Hist. gradient boosting", "xgb": "XGBoost", "lgbm": "LightGBM", "cat": "CatBoost"}
 
 
 def available_learners() -> list[str]:
@@ -52,6 +53,8 @@ def available_learners() -> list[str]:
         out.append("xgb")
     if HAS_LGBM:
         out.append("lgbm")
+    if HAS_CAT:
+        out.append("cat")
     return out
 
 
@@ -60,7 +63,7 @@ def preset(name: str) -> list[str]:
     if name == "fast":
         return ["logreg", "lgbm" if HAS_LGBM else "hgb"]
     if name == "balanced":
-        return [l for l in ["logreg", "rf", "xgb" if HAS_XGB else "hgb", "lgbm"] if l in avail]
+        return [l for l in ["logreg", "rf", "xgb" if HAS_XGB else "hgb", "lgbm", "cat"] if l in avail]
     return avail  # "full"
 
 
@@ -86,6 +89,12 @@ def make_learner(name: str, seed: int = 42):
         return lgb.LGBMClassifier(n_estimators=300, learning_rate=0.04, num_leaves=15, min_child_samples=40,
                                   subsample=0.8, subsample_freq=1, colsample_bytree=0.7, reg_lambda=2.0,
                                   verbose=-1, random_state=seed)
+    if name == "cat":
+        from catboost import CatBoostClassifier
+        # Ordered boosting + symmetric trees: robust on small, noisy tabular data like fight records.
+        return CatBoostClassifier(iterations=600, depth=5, learning_rate=0.04, l2_leaf_reg=5.0,
+                                  subsample=0.8, bootstrap_type="Bernoulli", loss_function="Logloss",
+                                  allow_writing_files=False, verbose=0, thread_count=-1, random_seed=seed)
     raise ValueError(f"unknown learner {name}")
 
 
