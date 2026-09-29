@@ -32,7 +32,7 @@ from urllib3.util.retry import Retry
 from . import config, store
 
 log = logging.getLogger(__name__)
-BASE = "http://ufcstats.com"  # fighter/fight URLs in the data use http; requests are upgraded to https
+BASE = "http://ufcstats.com"  # the site is http-only
 UA = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
@@ -81,7 +81,7 @@ def _looks_blocked(text: str) -> bool:
 
 
 def fetch_html(url: str, timeout: int = 20) -> str:
-    url = url.replace("http://ufcstats.com", "https://ufcstats.com", 1)
+    # NB: ufcstats.com is http-only; https is refused.
     headers = {"User-Agent": random.choice(UA), "Accept-Language": "en-US,en;q=0.9",
                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
     bs = _browser_session()
