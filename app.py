@@ -83,7 +83,18 @@ def model_sig():
 
 @st.cache_resource(show_spinner=False)
 def get_predictor(sig):
-    return Predictor.load()
+    from ufc_predictor import pipeline as _pl
+    pred = Predictor.load()
+    if pred is None and config.MODEL_FILE.exists() and _pl.LAST_LOAD_ERROR:
+        # The saved model came from a different library version (e.g. trained on a Mac, served on
+        # Streamlit Cloud). Retrain on the data we have so the app keeps working.
+        with st.spinner("Saved model isn't compatible with this server's libraries; retraining (about a minute)…"):
+            try:
+                pred = learning.retrain(state=learning.load_state())
+            except Exception as ex:
+                st.error(f"Automatic retrain failed: {ex}")
+                pred = None
+    return pred
 
 
 @st.cache_data(show_spinner="Building features…")

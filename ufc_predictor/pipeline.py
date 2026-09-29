@@ -79,10 +79,20 @@ class Predictor:
 
     @staticmethod
     def load(path=config.MODEL_FILE) -> "Predictor | None":
+        """Returns None if there is no model, or if the saved one was made with an incompatible
+        library version (a pickle from a different scikit-learn / Python build). Callers may retrain."""
+        global LAST_LOAD_ERROR
+        LAST_LOAD_ERROR = None
         try:
             return joblib.load(path)
         except FileNotFoundError:
             return None
+        except Exception as ex:  # ModuleNotFoundError / AttributeError from version drift
+            LAST_LOAD_ERROR = f"{type(ex).__name__}: {ex}"
+            return None
+
+
+LAST_LOAD_ERROR: str | None = None
 
     def predict(self, rows: pd.DataFrame, explain: bool = True) -> pd.DataFrame:
         if rows.empty:
