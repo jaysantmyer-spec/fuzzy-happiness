@@ -63,8 +63,10 @@ def preset(name: str) -> list[str]:
     if name == "fast":
         return ["logreg", "lgbm" if HAS_LGBM else "hgb"]
     if name == "balanced":
-        return [l for l in ["logreg", "rf", "xgb" if HAS_XGB else "hgb", "lgbm", "cat"] if l in avail]
-    return avail  # "full"
+        # Random forest is left out on purpose: in walk-forward tests it was the weakest member and
+        # slightly hurt the blend. Boosted learners join automatically when installed.
+        return [l for l in ["logreg", "hgb", "xgb", "lgbm", "cat"] if l in avail]
+    return avail  # "full" (everything, including random forest)
 
 
 def make_learner(name: str, seed: int = 42):

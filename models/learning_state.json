@@ -9,7 +9,6 @@
   "half_life_years": 5.0,
   "learners": [
     "logreg",
-    "rf",
     "hgb"
   ],
   "history": [
@@ -120,6 +119,13 @@
       "n_train": 8743,
       "data_through": "2026-09-19",
       "version": "20260927-002529"
+    },
+    {
+      "at": "2026-09-29T00:38:28",
+      "action": "retrained",
+      "n_train": 8743,
+      "data_through": "2026-09-19",
+      "version": "20260929-003828"
     }
   ]
 }
