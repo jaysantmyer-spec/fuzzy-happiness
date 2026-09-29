@@ -65,10 +65,10 @@ def hardness_weights(fight_urls: pd.Series, hardness: dict | None, alpha: float)
 
 
 # --------------------------------------------------------------------------- predictor
-@dataclass
 LAST_LOAD_ERROR: str | None = None  # set by Predictor.load when a saved model can't be read
 
 
+@dataclass
 class Predictor:
     win: WinModel
     method: MethodModel
