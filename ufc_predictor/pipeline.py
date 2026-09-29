@@ -66,6 +66,9 @@ def hardness_weights(fight_urls: pd.Series, hardness: dict | None, alpha: float)
 
 # --------------------------------------------------------------------------- predictor
 @dataclass
+LAST_LOAD_ERROR: str | None = None  # set by Predictor.load when a saved model can't be read
+
+
 class Predictor:
     win: WinModel
     method: MethodModel
@@ -90,9 +93,6 @@ class Predictor:
         except Exception as ex:  # ModuleNotFoundError / AttributeError from version drift
             LAST_LOAD_ERROR = f"{type(ex).__name__}: {ex}"
             return None
-
-
-LAST_LOAD_ERROR: str | None = None
 
     def predict(self, rows: pd.DataFrame, explain: bool = True) -> pd.DataFrame:
         if rows.empty:
